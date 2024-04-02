@@ -1,0 +1,28 @@
+<html> 
+    <header>
+        {% include "includes/header.html" %}
+        {% if request.user.is_authenticated %}
+
+        <div>
+            <!-- {% comment %} <div id="title" class="container p-3 my-3 bg-secondary text-white"> {% endcomment %}
+              <span style="font-size: 60px;font-weight: bold;background: linear-gradient(to right, #FFECF5 0%, #FFB5B5 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;"><br>SaferTrader Screener</span>
+              <span style="font-size: 40px;font-weight: bold;background: linear-gradient(to right, #FFECF5 0%, #FFB5B5 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;"><br>Option Filter</span> -->
+              <p style="text-align:right;">Hello, {{request.user}} !&nbsp;&nbsp;&nbsp;&nbsp;</p>
+              <!-- <p style="font-size: 25px;font-weight: bold;background: linear-gradient(to right, #070606 0%, #030303 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">Hello, {{request.user}}</p> -->
+              <!-- <a href="{% url 'Logout' %}"><p style="font-weight:bolder">Log Out</p></a> -->
+        </div>
+        {% endif %}
+    </header>
+
+    
+    <body> 
+        {% block content %} 
+        {% endblock content %} 
+    </body> 
+    
+
+    <footer>
+        {% include "includes/footer.html" %} 
+    </footer>
+
+</html> 

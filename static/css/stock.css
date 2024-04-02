@@ -1,0 +1,86 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+fieldset {
+  border: 1px solid #ddd;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+legend {
+  padding: 0 10px;
+  font-weight: bold;
+}
+
+label {
+  display: block;
+  margin: 5px 0;
+}
+
+input[type="text"], input[type="date"], input[type="number"], select {
+  width: 100%;
+  padding: 8px;
+  margin: 4px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type="submit"] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+.remove_feature_btn {
+  margin-top: 10px;
+  color: white;
+  background-color: red;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.card-body > div {
+  padding-left: 20px;
+}
+
+#method_parameters > div, .additional-params {
+  padding-left: 40px;
+}
+
+/* 自定义 Tooltip 的背景色和文字颜色 */
+.tooltip-inner {
+  background-color: #555; /* Tooltip 背景色 */
+  color: #fff; /* 文字颜色 */
+}
+
+/* 自定义 Tooltip 箭头的颜色 */
+.tooltip.bs-tooltip-top .arrow::before {
+  border-top-color: #555;
+}
+
+.tooltip.bs-tooltip-right .arrow::before {
+  border-right-color: #555;
+}
+
+.tooltip.bs-tooltip-bottom .arrow::before {
+  border-bottom-color: #555;
+}
+
+.tooltip.bs-tooltip-left .arrow::before {
+  border-left-color: #555;
+}

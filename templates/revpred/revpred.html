@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+{% extends "base.html" %} {% block content %} {% load static %}
+<html>
+  <head>
+    <title>Option Data</title>
+    <!--css-->
+    <link rel="stylesheet" href="{% static 'css/stock.css' %}" />
+
+    <!--ajax js-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/revpred.js' %}"></script>
+
+    <!--Jquerry UI-->
+    <link
+      rel="stylesheet"
+      href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css"
+    />
+    <script src="//code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+    <!--datatable-->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.css"
+    />
+    <script
+      type="text/javascript"
+      src="https://cdn.datatables.net/v/dt/dt-1.10.25/datatables.min.js"
+    ></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/data.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/accessibility.js"></script>
+
+    <!--BootStrap-->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  </head>
+
+  <body>
+    <div align="left" class="container-fluid" style="margin-top: 2%">
+      <div class="col-11 mx-auto">
+        <div class="card">
+          <div class="card-header">
+            <h4 style="text-align: left">
+              <b><i class="fas fa-user-cog"></i> Stock Analysis Tool</b>
+            </h4>
+          </div>
+          <div class="card-body">
+            <form id="stockAnalysisForm">
+              <!-- Data Section -->
+              <div id="accordion">
+                <div class="card">
+                  <div
+                    class="card-header d-flex justify-content-between align-items-center"
+                    id="headingData"
+                  >
+                    <h5 class="mb-0">Data</h5>
+                    <button
+                      class="btn btn-link"
+                      type="button"
+                      data-toggle="collapse"
+                      data-target="#collapseData"
+                      aria-expanded="true"
+                      aria-controls="collapseData"
+                    >
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div
+                    id="collapseData"
+                    class="collapse show"
+                    aria-labelledby="headingData"
+                  >
+                    <div class="card-body">
+                      <div style="padding-left: 20px">
+                        <div class="tooltip">
+                          <label for="start_date">Start Date:</label>
+                          <input
+                            type="date"
+                            id="start_date"
+                            name="start_date"
+                            value="2001-01-01"
+                            data-toggle="tooltip"
+                            title="資料起始日期"
+                            required
+                          />
+                        </div>
+                        <label for="stop_date">Stop Date:</label>
+                        <input
+                          type="date"
+                          id="stop_date"
+                          name="stop_date"
+                          value="2021-01-01"
+                          data-toggle="tooltip"
+                          title="資料結束日期"
+                          required
+                        />
+
+                        <label for="stock_symbol">Stock Symbol:</label>
+                        <input
+                          type="text"
+                          id="stock_symbol"
+                          name="stock_symbol"
+                          value="^GSPC"
+                          required
+                        />
+
+                        <label for="training_symbol">Training Symbols:</label>
+                        <input
+                          type="text"
+                          id="training_symbols"
+                          name="training_symbols"
+                          value="[^GSPC, ^DJI, ^IXIC, ^RUT]"
+                          required
+                        />
+
+                        <label for="split_ratio">Split Ratio:</label>
+                        <input
+                          type="number"
+                          id="split_ratio"
+                          name="split_ratio"
+                          step="0.01"
+                          value="0.7"
+                          required
+                        />
+
+                        <label for="target_col">Target Column:</label>
+                        <input
+                          type="text"
+                          id="target_col"
+                          name="target_col"
+                          value="Trend"
+                          required
+                          disabled
+                        />
+
+                        <label for="trend_method">Trend Method:</label>
+                        <select id="trend_method" name="trend_method">
+                          <option value="Local Extrema">Local Extrema</option>
+                          <option value="MA">MA</option>
+                        </select>
+                        <div id="method_parameters"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Features Section -->
+              <div class="card">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                  id="headingFeatures">
+                  <h5 class="mb-0">Features</h5>
+                  <button
+                    class="btn btn-link"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#collapseFeatures"
+                    aria-expanded="true"
+                    aria-controls="collapsePreprocessor"
+                  >
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                </div>
+                <div
+                  id="collapseFeatures"
+                  class="collapse"
+                  aria-labelledby="headingFeatures"
+                >
+                  {% comment %}
+                  <div class="card-body">
+                    <div id="features_container"></div>
+                    <button type="button" id="add_feature_btn">
+                      Add Feature
+                    </button>
+                  </div>
+                  {% endcomment %}
+                  <div class="card-body">
+                    <div class="feature">
+                      <div id="features_selection"></div>
+                      <div id="feature_params_container"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Preprocessor Section -->
+              <div class="card">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                  id="headingPreprocessor">
+
+                  <h5 class="mb-0">Preprocessor</h5>
+                  <button
+                    class="btn btn-link"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#collapsePreprocessor"
+                    aria-expanded="true"
+                    aria-controls="collapsePreprocessor">
+
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                </div>
+                <div
+                  id="collapsePreprocessor"
+                  class="collapse"
+                  aria-labelledby="headingPreprocessor"
+                >
+                  <div class="card-body">
+                    <label for="look_back">Look Back:</label>
+                    <input
+                      type="number"
+                      id="look_back"
+                      name="look_back"
+                      value="32"
+                      required
+                    />
+
+                    <label for="predict_steps">Predict Steps:</label>
+                    <input
+                      type="number"
+                      id="predict_steps"
+                      name="predict_steps"
+                      value="8"
+                      required
+                    />
+
+                    <label for="train_slide_steps">Train Slide Steps:</label>
+                    <input
+                      type="number"
+                      id="train_slide_steps"
+                      name="train_slide_steps"
+                      value="8"
+                      required
+                    />
+
+                    <label for="test_slide_steps">Test Slide Steps:</label>
+                    <input
+                      type="number"
+                      id="test_slide_steps"
+                      name="test_slide_steps"
+                      value="8"
+                      required
+                    />
+
+                    <fieldset>
+                      <legend>Data Cleaning</legend>
+                      <label for="clean_type">Clean Type:</label>
+                      <select id="clean_type" name="clean_type">
+                        <option value="MissingData">MissingData</option>
+                        <!-- Add other cleaning types here -->
+                      </select>
+                      <label for="strategy">Strategy:</label>
+                      <select id="strategy" name="strategy">
+                        <option value="auto">Auto</option>
+                        <!-- Add other strategies here -->
+                      </select>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Model Section -->
+              <div class="card">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                  id="headingModel"
+                >
+                  <h5 class="mb-0">Model</h5>
+                  <button
+                    class="btn btn-link"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#collapseModel"
+                    aria-expanded="true"
+                    aria-controls="collapseModel"
+                  >
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                </div>
+                <div
+                  id="collapseModel"
+                  class="collapse"
+                  aria-labelledby="headingModel"
+                >
+                  <div class="card-body">
+                    <label for="model_type">Model Type:</label>
+                    <select
+                      id="model_type"
+                      name="model_type"
+                      onchange="updateModelConfigFields()"
+                    >
+                      <option value="DNN">DNN</option>
+                      <option value="LeNet">LeNet</option>
+                      <option value="RNN">RNN</option>
+                      <option value="LSTM">LSTM</option>
+                      <option value="CNN_LSTM">CNN_LSTM</option>
+                      <option value="DummyClassifier">DummyClassifier</option>
+                      <!-- Add other model types here -->
+                    </select>
+                    <!-- Model configuration fields will be dynamically added here -->
+                    <div id="model_config_container"></div>
+                    <!-- Training Epoch Number -->
+                    <label for="training_epoch_num"
+                      >Training Epoch Number:</label
+                    >
+                    <input
+                      type="number"
+                      id="training_epoch_num"
+                      name="training_epoch_num"
+                      value="1000"
+                      required
+                    />
+
+                    <!-- Online Training Epoch Number -->
+                    <label for="online_training_epoch_num"
+                      >Online Training Epoch Number:</label
+                    >
+                    <input
+                      type="number"
+                      id="online_training_epoch_num"
+                      name="online_training_epoch_num"
+                      value="10"
+                      required
+                    />
+
+                    <!-- Learning Rate -->
+                    <label for="learning_rate">Learning Rate:</label>
+                    <input
+                      type="text"
+                      id="learning_rate"
+                      name="learning_rate"
+                      value="0.001"
+                      required
+                    />
+
+                    <!-- Online Train Learning Rate -->
+                    <label for="online_train_learning_rate"
+                      >Online Train Learning Rate:</label
+                    >
+                    <input
+                      type="text"
+                      id="online_train_learning_rate"
+                      name="online_train_learning_rate"
+                      value="0.001"
+                      required
+                    />
+
+                    <!-- Patience -->
+                    <label for="patience">Patience:</label>
+                    <input
+                      type="number"
+                      id="patience"
+                      name="patience"
+                      value="10"
+                      required
+                    />
+
+                    <!-- Min Delta -->
+                    <label for="min_delta">Min Delta:</label>
+                    <input
+                      type="text"
+                      id="min_delta"
+                      name="min_delta"
+                      value="0.01"
+                      required
+                    />
+
+                    <!-- Apply Weight -->
+                    <label for="apply_weight">Apply Weight:</label>
+                    <select id="apply_weight" name="apply_weight">
+                      <option value="True">True</option>
+                      <option value="False">False</option>
+                    </select>
+
+                    <!-- Data Update Mode -->
+                    <label for="data_update_mode">Data Update Mode:</label>
+                    <select id="data_update_mode" name="data_update_mode">
+                      <option value="append">Append</option>
+                      <!-- Add other update modes if necessary -->
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Postprocessor Section -->
+              <div class="card">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                  id="headingPostprocessor"
+                >
+                  <h5 class="mb-0">Postprocessor</h5>
+                  <button
+                    class="btn btn-link"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#collapsePostprocessor"
+                    aria-expanded="true"
+                    aria-controls="collapsePostprocessor"
+                  >
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                </div>
+                <div
+                  id="collapsePostprocessor"
+                  class="collapse"
+                  aria-labelledby="headingPostprocessor"
+                >
+                  <div class="card-body">
+                    <label for="filter">Filter:</label>
+                    <select id="filter" name="filter">
+                      <option value="False">No</option>
+                      <option value="20">20</option>
+                      <option value="10">10</option>
+                      <option value="5">5</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Trade Strategy Section -->
+              <div class="card">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                  id="headingTradeStrategy"
+                >
+                  <h5 class="mb-0">Trade Strategy</h5>
+                  <button
+                    class="btn btn-link"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#collapseTradeStrategy"
+                    aria-expanded="true"
+                    aria-controls="collapseTradeStrategy"
+                  >
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                </div>
+                <div
+                  id="collapseTradeStrategy"
+                  class="collapse"
+                  aria-labelledby="headingTradeStrategy"
+                >
+                  <div class="card-body">
+                    <!-- Trade Strategy Content -->
+                    <select id="trade_strategy" name="trade_strategy">
+                      <option value="all">All</option>
+                      <!-- Additional strategies can be added here -->
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <input
+                type="submit"
+                value="Submit"
+                class="btn btn-primary mt-3"
+              />
+            </form>
+          </div>
+        </div>
+      <div class="card">
+        <div class="card-header">
+          <h4 style="text-align: left">
+            <b><i class="fas fa-user-cog"></i> Stock Analysis Results</b>
+          </h4>
+        </div>
+        <div class="card-body">
+          <div id="responseContainer"></div>
+        </div>
+      </div>
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+    </div>
+    
+
+  </body>
+</html>
+{% endblock %}

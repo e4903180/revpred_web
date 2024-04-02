@@ -1,0 +1,13 @@
+
+
+Accuracy: 0.56
+Precision: 0.47
+Recall: 0.47
+F1 Score: 0.47
+
+        
+Execution time: 242.15255618095398 seconds
+,sharpe_ratio,initial_value,final_value,total_return
+0,-0.3622762141197654,10000.0,8708.420449829102,0.8708420449829102
+
+        
